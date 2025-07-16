@@ -11,12 +11,12 @@ const requestIds = new Map(); // Store request IDs for persistence
 const MAX_ATTEMPTS = 60 * 6; // 30 minutes max wait for progress tracking
 
 const buildPlaylistApiUrl = (playlistUrl) => {
-    return `${API_URLS.PLAYLIST}?format=720&api=${API_KEY}&url=${encodeURIComponent(playlistUrl)}&limit=100`;
+    return `${API_URLS.PLAYLIST}?format=720&url=${encodeURIComponent(playlistUrl)}&limit=100`;
 };
 
 const buildDownloadApiUrl = (videoUrl, quality) => {
     const encodedUrl = encodeURIComponent(videoUrl);
-    return `${API_URLS.DOWNLOAD}?copyright=0&format=${quality}&url=${encodedUrl}&api=${API_KEY}`;
+    return `${API_URLS.DOWNLOAD}?copyright=0&format=${quality}&url=${encodedUrl}`;
 };
 
 function initializeVideos() {
@@ -441,14 +441,14 @@ async function processVideo(video, quality) {
                 }
                 throw new Error(data.message || 'Failed to initiate download');
             }
-
+            
+            video.id = data.id;
             video.title = data.info.title || video.title;
-            progressUrl = data.progress_url;
-            video.progressUrl = progressUrl;
+            video.progressUrl = API_URLS.PROGRESS + `?id=${video.id}`;
             video.requestId = data.id;
             
             // Store request ID for persistence
-            requestIds.set(video.id, progressUrl);
+            requestIds.set(video.id, video.progressUrl);
             
             video.progress = 50;
             video.progressText = 'Initialising';
@@ -566,7 +566,8 @@ async function trackProgress(video, abortController) {
         }
 
         try {
-            const response = await fetch(video.progressUrl, {
+            const progressUrl = API_URLS.PROGRESS + `?id=${video.id}`;
+            const response = await fetch(progressUrl, {
                 signal: abortController.signal
             });
             
