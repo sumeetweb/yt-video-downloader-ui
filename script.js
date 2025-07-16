@@ -95,9 +95,7 @@ async function addPlaylist(playlistUrl) {
             method: 'GET',
             mode: 'cors',
             headers: {
-                'Accept': 'application/json',
-                'Origin': REQUEST_HEADERS.ORIGIN,
-                'Referer': REQUEST_HEADERS.REFERER
+                'Accept': 'application/json'
             }
         });
 
@@ -426,11 +424,7 @@ async function processVideo(video, quality) {
             const downloadApiUrl = buildDownloadApiUrl(video.url, quality);
             
             const response = await fetch(downloadApiUrl, {
-                signal: abortController.signal,
-                headers: {
-                    'Origin': REQUEST_HEADERS.ORIGIN,
-                    'Referer': REQUEST_HEADERS.REFERER
-                }
+                signal: abortController.signal
             });
             
             if (abortController.signal.aborted) {
@@ -573,11 +567,7 @@ async function trackProgress(video, abortController) {
 
         try {
             const response = await fetch(video.progressUrl, {
-                signal: abortController.signal,
-                headers: {
-                    'Origin': REQUEST_HEADERS.ORIGIN,
-                    'Referer': REQUEST_HEADERS.REFERER
-                }
+                signal: abortController.signal
             });
             
             if (abortController.signal.aborted) {
